@@ -1,0 +1,208 @@
+<Page x:Class="IOMini2Tool.Views.ConfigPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="Config">
+    
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Top-Left: Digital Inputs -->
+        <GroupBox Grid.Row="0" Grid.Column="0" Header="Digital Inputs" Margin="0,0,8,8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" Text="Input Pull up" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding InputPullups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Label}" 
+                                          IsChecked="{Binding IsEnabled}" 
+                                          Command="{Binding DataContext.ToggleInputPullupCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                          CommandParameter="{Binding}"
+                                          Margin="4,2"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                    <TextBlock Text="DI State Debounce" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox Width="60" Text="{Binding DebounceMs, UpdateSourceTrigger=LostFocus}" 
+                             IsEnabled="{Binding IsConnected}"/>
+                    <TextBlock Text="ms" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+        
+        <!-- Top-Right: Digital Outputs -->
+        <GroupBox Grid.Row="0" Grid.Column="1" Header="Digital Outputs" Margin="8,0,0,8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" Text="Output Settings" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="60"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Headers -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Out" FontWeight="SemiBold" Margin="4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Safe" FontWeight="SemiBold" Margin="4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Active" FontWeight="SemiBold" Margin="4" ToolTip="Active High"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" Text="Hz" FontWeight="SemiBold" Margin="4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="%" FontWeight="SemiBold" Margin="4"/>
+                        
+                        <!-- DPO1-8 Rows -->
+                        <ItemsControl Grid.Row="1" Grid.RowSpan="8" Grid.ColumnSpan="5" ItemsSource="{Binding OutputConfigs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="60"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" Margin="4"/>
+                                        <CheckBox Grid.Column="1" IsChecked="{Binding SafeHigh}" HorizontalAlignment="Center"
+                                                  Command="{Binding DataContext.OutputSafeChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <CheckBox Grid.Column="2" IsChecked="{Binding ActiveHigh}" HorizontalAlignment="Center"
+                                                  Command="{Binding DataContext.OutputActiveChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <TextBox Grid.Column="3" Text="{Binding Frequency, UpdateSourceTrigger=LostFocus}" Margin="2"
+                                                 IsEnabled="{Binding DataContext.IsConnected, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                 Tag="{Binding}"/>
+                                        <TextBox Grid.Column="4" Text="{Binding Duty, UpdateSourceTrigger=LostFocus}" Margin="2"
+                                                 IsEnabled="{Binding DataContext.IsConnected, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                 Tag="{Binding}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </GroupBox>
+        
+        <!-- Bottom-Left: CAN Settings -->
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="CAN Settings" Margin="0,8,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- CAN Speed -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                    <TextBlock Text="CAN Speed" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Content="1000" GroupName="CanSpeed" IsChecked="{Binding CanSpeed1000}" Margin="0,0,12,0"
+                                     Command="{Binding CanSpeedChangedCommand}" CommandParameter="1000"/>
+                        <RadioButton Content="500" GroupName="CanSpeed" IsChecked="{Binding CanSpeed500}" Margin="0,0,12,0"
+                                     Command="{Binding CanSpeedChangedCommand}" CommandParameter="500"/>
+                        <RadioButton Content="250" GroupName="CanSpeed" IsChecked="{Binding CanSpeed250}" Margin="0,0,12,0"
+                                     Command="{Binding CanSpeedChangedCommand}" CommandParameter="250"/>
+                        <RadioButton Content="125" GroupName="CanSpeed" IsChecked="{Binding CanSpeed125}"
+                                     Command="{Binding CanSpeedChangedCommand}" CommandParameter="125"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <!-- CAN IDs and Rate -->
+                <Grid Grid.Row="1" Margin="0,0,0,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="CAN TX Base" VerticalAlignment="Center" Margin="0,4"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,4">
+                        <TextBlock Text="0x" VerticalAlignment="Center"/>
+                        <TextBox Width="80" Text="{Binding CanTxBaseId, UpdateSourceTrigger=LostFocus}" Margin="4,0"/>
+                    </StackPanel>
+                    
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="CAN RX Base" VerticalAlignment="Center" Margin="0,4"/>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,4">
+                        <TextBlock Text="0x" VerticalAlignment="Center"/>
+                        <TextBox Width="80" Text="{Binding CanRxBaseId, UpdateSourceTrigger=LostFocus}" Margin="4,0"/>
+                    </StackPanel>
+                    
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="CAN TX Rate" VerticalAlignment="Center" Margin="0,4"/>
+                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,4">
+                        <TextBox Width="80" Text="{Binding CanTxRate, UpdateSourceTrigger=LostFocus}"/>
+                        <TextBlock Text="Hz" VerticalAlignment="Center" Margin="4,0"/>
+                    </StackPanel>
+                </Grid>
+                
+                <!-- RX Timeout -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
+                    <TextBlock Text="RX Timeout" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox Width="80" Text="{Binding CanRxTimeout, UpdateSourceTrigger=LostFocus}"/>
+                    <TextBlock Text="ms" VerticalAlignment="Center" Margin="4,0"/>
+                </StackPanel>
+                
+                <!-- CAN Mode -->
+                <StackPanel Grid.Row="3">
+                    <TextBlock Text="CAN MODE" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <ComboBox ItemsSource="{Binding CanModes}" 
+                              SelectedIndex="{Binding SelectedCanModeIndex}"
+                              DisplayMemberPath="Name"
+                              SelectedValuePath="Index"
+                              Margin="0,4"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+        
+        <!-- Bottom-Right: Buttons -->
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,8,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical">
+            <Button Content="Console" Width="150" Margin="0,0,0,12" IsEnabled="False"/>
+            <Button Content="Help" Width="150" Margin="0,0,0,12" IsEnabled="False"/>
+            <Button Content="Default" Width="150" Command="{Binding ResetDefaultsCommand}"/>
+        </StackPanel>
+    </Grid>
+</Page>

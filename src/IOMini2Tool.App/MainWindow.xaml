@@ -1,0 +1,107 @@
+<Window x:Class="IOMini2Tool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="IO-Mini2 Tool"
+        Height="700"
+        Width="1000"
+        MinHeight="600"
+        MinWidth="900">
+    
+    <Window.Resources>
+        <Style TargetType="RadioButton" x:Key="NavButtonStyle" BasedOn="{StaticResource TabButtonStyle}"/>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Navigation Header -->
+        <Border Grid.Row="0" Background="#F5F5F5" BorderBrush="#CCCCCC" BorderThickness="0,0,0,1" Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Tab Navigation Buttons -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,24,0">
+                    <RadioButton Style="{StaticResource NavButtonStyle}" 
+                                 Content="Dashboard" 
+                                 IsChecked="{Binding SelectedTab, Mode=TwoWay, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Dashboard}"
+                                 Command="{Binding NavigateToPageCommand}"
+                                 CommandParameter="Dashboard"
+                                 Margin="0,0,2,0"/>
+                    <RadioButton Style="{StaticResource NavButtonStyle}" 
+                                 Content="Config"
+                                 IsChecked="{Binding SelectedTab, Mode=TwoWay, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Config}"
+                                 Command="{Binding NavigateToPageCommand}"
+                                 CommandParameter="Config"
+                                 IsEnabled="{Binding IsConnected}"
+                                 Margin="0,0,2,0"/>
+                    <RadioButton Style="{StaticResource NavButtonStyle}" 
+                                 Content="Firmware"
+                                 IsChecked="{Binding SelectedTab, Mode=TwoWay, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Firmware}"
+                                 Command="{Binding NavigateToPageCommand}"
+                                 CommandParameter="Firmware"/>
+                </StackPanel>
+                
+                <!-- Connection Controls -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="COM Port:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox Width="150" 
+                              ItemsSource="{Binding ComPorts}"
+                              DisplayMemberPath="DisplayName"
+                              SelectedItem="{Binding SelectedComPort}"
+                              IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBooleanConverter}}"
+                              Margin="0,0,8,0"/>
+                    <Button Content="🔃" 
+                            ToolTip="Refresh COM Ports"
+                            Command="{Binding RefreshComPortsCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            MinWidth="40"
+                            Margin="0,0,16,0"/>
+                </StackPanel>
+                
+                <!-- Status and Connect Button -->
+                <StackPanel Grid.Column="3" Orientation="Vertical" Margin="0,0,16,0">
+                    <TextBlock Text="{Binding ConnectionStatus}" 
+                               FontWeight="SemiBold" 
+                               FontSize="11"
+                               Foreground="{StaticResource SecondaryTextBrush}"/>
+                    <TextBlock Text="{Binding FirmwareVersion}" 
+                               FontSize="10"
+                               Foreground="{StaticResource DisabledTextBrush}"
+                               Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </StackPanel>
+                
+                <Button Grid.Column="4" 
+                        Content="{Binding IsConnected, Converter={StaticResource BoolToConnectTextConverter}}"
+                        Command="{Binding ConnectCommand}"
+                        MinWidth="100"
+                        Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                
+                <Button Grid.Column="4" 
+                        Content="Disconnect"
+                        Command="{Binding DisconnectCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        MinWidth="100"
+                        Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </Grid>
+        </Border>
+        
+        <!-- Content Frame -->
+        <Frame x:Name="ContentFrame" 
+               Grid.Row="2" 
+               NavigationUIVisibility="Hidden"
+               Margin="0"/>
+    </Grid>
+</Window>

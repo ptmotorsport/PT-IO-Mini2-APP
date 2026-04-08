@@ -1,0 +1,20 @@
+# Build output
+**/bin/
+**/obj/
+
+# User/system files
+*.user
+*.suo
+.vs/
+*.tmp
+*.cache
+
+# Windows
+[Dd]esktop.ini
+Thumbs.db
+
+# Logs
+*.log
+
+# Publish output
+**/publish/

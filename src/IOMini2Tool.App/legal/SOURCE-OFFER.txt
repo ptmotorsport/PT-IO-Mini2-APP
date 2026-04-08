@@ -1,0 +1,23 @@
+Written Offer for Source Code
+=============================
+
+This product distribution includes third-party software licensed under GPL/LGPL terms,
+including dfu-util and libusb binaries.
+
+Upon request, we will provide the corresponding source code for those third-party
+components covered by GPL/LGPL obligations for this shipped version.
+
+How to request source code:
+- Email: support@ptmotorsport.com.au
+- Subject: Source Code Request - TSD Firmware Uploader
+- Include: Product version, date received, and your contact details
+
+Fulfillment:
+- We will provide source code access instructions or a source archive link.
+- If physical media is requested, reasonable media/shipping costs may apply.
+
+Before customer release:
+- Replace support@ptmotorsport.com.au with your real support/compliance address.
+- Keep this file with customer distributions.
+
+This file is a practical template and not legal advice.

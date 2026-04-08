@@ -1,0 +1,118 @@
+<Window x:Class="IOMini2Tool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="IO-Mini2 Tool"
+        Height="620"
+        Width="900"
+        MinHeight="560"
+        MinWidth="820">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock FontWeight="SemiBold" FontSize="18" Text="RA4M1 Firmware Uploader" />
+            <TextBlock Margin="0,4,0,0" Foreground="#444" Text="Portable build. Connect device, enter DFU mode, select firmware, then upload." />
+        </StackPanel>
+
+        <GroupBox Grid.Row="1" Header="Device Selection" Padding="12" Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="COM Ports" />
+                <ComboBox Grid.Row="0"
+                          Grid.Column="1"
+                          Margin="12,0,12,8"
+                          MinHeight="28"
+                          ItemsSource="{Binding ComPorts}"
+                          DisplayMemberPath="DisplayName"
+                          SelectedItem="{Binding SelectedComPort}" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="DFU Devices" />
+                <ComboBox Grid.Row="1"
+                          Grid.Column="1"
+                          Margin="12,0,12,0"
+                          MinHeight="28"
+                          ItemsSource="{Binding DfuDevices}"
+                          DisplayMemberPath="DisplayName"
+                          SelectedItem="{Binding SelectedDfuDevice}" />
+
+                <Button Grid.Row="0"
+                        Grid.Column="2"
+                        Grid.RowSpan="2"
+                        Width="100"
+                        Height="32"
+                        Content="Refresh"
+                        Click="RefreshDevices_Click" />
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="2" Header="Firmware" Padding="12" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                         Margin="0,0,12,0"
+                         MinHeight="30"
+                         IsReadOnly="True"
+                         Text="{Binding FirmwarePath}" />
+                <Button Grid.Column="1" Width="100" Height="32" Content="Browse" Click="BrowseFirmware_Click" />
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="3" Header="Upload" Padding="12" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Width="120" Height="36" Content="Upload" Click="Upload_Click" />
+                <Button Grid.Column="1" Width="120" Height="36" Margin="8,0,0,0" Content="Cancel" Click="Cancel_Click" />
+
+                <ProgressBar Grid.Column="3"
+                             Height="18"
+                             VerticalAlignment="Center"
+                             Minimum="0"
+                             Maximum="100"
+                             Value="{Binding UploadPercent}" />
+                <TextBlock Grid.Column="4" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding UploadStatus}" />
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="4" Header="Status Console" Padding="8">
+            <TextBox Name="ConsoleText"
+                     FontFamily="Consolas"
+                     AcceptsReturn="True"
+                     IsReadOnly="True"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto"
+                     TextWrapping="Wrap" />
+        </GroupBox>
+
+        <TextBlock Grid.Row="5" Margin="4,10,0,0" Foreground="#555" Text="Auto-refresh is enabled. If DFU is not listed, re-enter boot mode and press Refresh." />
+    </Grid>
+</Window>

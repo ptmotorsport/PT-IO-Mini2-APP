@@ -1,0 +1,103 @@
+<Page x:Class="IOMini2Tool.Views.DashboardPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="Dashboard">
+    
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Top-Left: Analog Input Information -->
+        <GroupBox Grid.Row="0" Grid.Column="0" Header="Analog Input Information" Margin="0,0,8,8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding AnalogInputs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Margin="4,2" FontFamily="Consolas"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </GroupBox>
+        
+        <!-- Top-Right: Digital Input Information -->
+        <GroupBox Grid.Row="0" Grid.Column="1" Header="Digital Input Information" Margin="8,0,0,8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding DigitalInputs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Margin="4,2" FontFamily="Consolas"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </GroupBox>
+        
+        <!-- Bottom-Left: CAN Information -->
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="CAN Information" Margin="0,8,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="CAN Speed:" Margin="4,4"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CanSpeed}" Margin="4,4" FontWeight="SemiBold"/>
+                
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="CAN Mode:" Margin="4,4"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CanMode}" Margin="4,4" FontWeight="SemiBold"/>
+                
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="CAN TX Rate:" Margin="4,4"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CanTxRate}" Margin="4,4" FontWeight="SemiBold"/>
+                
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="CAN TX BaseID:" Margin="4,4"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CanTxBaseId}" Margin="4,4" FontWeight="SemiBold"/>
+                
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="CAN RX BaseID:" Margin="4,4"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CanRxBaseId}" Margin="4,4" FontWeight="SemiBold"/>
+                
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="RX Timeout:" Margin="4,4"/>
+                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CanRxTimeout}" Margin="4,4" FontWeight="SemiBold"/>
+                
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Safe State Active:" Margin="4,4"/>
+                <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding CanSafeState}" Margin="4,4" FontWeight="SemiBold" 
+                           Foreground="{Binding CanSafeStateColor}"/>
+                
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="RX Count / TX Count:" Margin="4,4"/>
+                <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding CanCounts}" Margin="4,4" FontWeight="SemiBold"/>
+            </Grid>
+        </GroupBox>
+        
+        <!-- Bottom-Right: Digital Output Information -->
+        <GroupBox Grid.Row="1" Grid.Column="1" Header="Digital Output Information" Margin="8,8,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding DigitalOutputs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Margin="4,2" FontFamily="Consolas"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </GroupBox>
+    </Grid>
+</Page>

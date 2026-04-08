@@ -1,0 +1,28 @@
+TSD Firmware Uploader - Third-Party Notices
+===========================================
+
+This package includes third-party software components.
+
+1) dfu-util
+-----------
+Component: dfu-util command line tool
+Website: https://dfu-util.sourceforge.net/
+Source code: https://sourceforge.net/p/dfu-util/dfu-util/
+License: GNU General Public License, version 2 (GPL-2.0)
+
+Copyright holders include dfu-util contributors.
+
+2) libusb
+---------
+Component: libusb runtime library (for example, libusb-1.0.dll)
+Website: https://libusb.info/
+Source code: https://github.com/libusb/libusb
+License: GNU Lesser General Public License, version 2.1 (LGPL-2.1)
+
+Copyright holders include libusb contributors.
+
+Notes
+-----
+- Keep this file and SOURCE-OFFER.txt with customer distributions.
+- If you update bundled dfu-util/libusb binaries, re-check license obligations for that exact version.
+- This notice is operational guidance and not legal advice.

@@ -1,0 +1,130 @@
+<Page x:Class="IOMini2Tool.Views.FirmwarePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:vm="clr-namespace:IOMini2Tool.ViewModels"
+      mc:Ignorable="d"
+      d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance Type=vm:FirmwareViewModel}"
+    Background="{StaticResource WindowBackgroundBrush}">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Device Selection Section -->
+        <GroupBox Grid.Row="0" Header="Device Selection" Margin="0,0,0,15">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- DFU Device Selection -->
+                <TextBlock Grid.Row="0" Grid.Column="0" 
+                           Text="DFU Device:" 
+                           VerticalAlignment="Center"
+                           Margin="0,0,10,0"/>
+                <ComboBox Grid.Row="0" Grid.Column="1"
+                          ItemsSource="{Binding DfuDevices}"
+                          SelectedItem="{Binding SelectedDfuDevice}"
+                          DisplayMemberPath="DisplayName"
+                          Margin="0,0,10,10"/>
+                <Button Grid.Row="0" Grid.Column="2"
+                        Content="Refresh"
+                        Command="{Binding RefreshDfuDevicesCommand}"
+                        Width="80"
+                        Margin="0,0,0,10"/>
+
+                <!-- Firmware File Selection -->
+                <TextBlock Grid.Row="1" Grid.Column="0" 
+                           Text="Firmware File:" 
+                           VerticalAlignment="Center"
+                           Margin="0,0,10,0"/>
+                <TextBox Grid.Row="1" Grid.Column="1"
+                         Text="{Binding FirmwareFilePath, Mode=TwoWay}"
+                         IsReadOnly="True"
+                         Margin="0,0,10,0"/>
+                <Button Grid.Row="1" Grid.Column="2"
+                        Content="Browse..."
+                        Command="{Binding BrowseFirmwareCommand}"
+                        Width="80"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Upload Actions -->
+        <StackPanel Grid.Row="1" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,15">
+            <Button Content="Upload Firmware"
+                    Command="{Binding UploadFirmwareCommand}"
+                    Width="140"
+                    Height="32"
+                    Margin="0,0,10,0"
+                    Style="{StaticResource PrimaryButtonStyle}"/>
+            <Button Content="Cancel"
+                    Command="{Binding CancelUploadCommand}"
+                    Width="100"
+                    Height="32"/>
+        </StackPanel>
+
+        <!-- Progress Section -->
+        <GroupBox Grid.Row="2" Header="Upload Progress" Margin="0,0,0,15">
+            <StackPanel Margin="10">
+                <ProgressBar Height="24"
+                             Value="{Binding ProgressPercent}"
+                             Maximum="100"
+                             Margin="0,0,0,10"/>
+                <TextBlock Text="{Binding ProgressStatus}"
+                           HorizontalAlignment="Center"
+                           FontSize="12"
+                           Foreground="{StaticResource SecondaryTextBrush}"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Status Banner -->
+        <Border Grid.Row="3" 
+                Height="32"
+                Background="{Binding StatusBackground}"
+                CornerRadius="4"
+                Margin="0,0,0,15"
+                Visibility="{Binding ShowStatusBanner, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock Text="{Binding StatusMessage}"
+                       Foreground="White"
+                       FontSize="13"
+                       FontWeight="Medium"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Console Output -->
+        <GroupBox Grid.Row="4" Header="Console Output">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding ConsoleLines}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}"
+                                       FontFamily="Consolas"
+                                       FontSize="11"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="5,1"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </GroupBox>
+    </Grid>
+</Page>
