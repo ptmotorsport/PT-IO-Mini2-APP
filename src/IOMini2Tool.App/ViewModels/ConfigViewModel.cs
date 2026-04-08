@@ -77,15 +77,36 @@ public partial class ConfigViewModel : ViewModelBase
                 Label = $"DPO{i + 1}",
                 SafeHigh = false,
                 ActiveHigh = true,
+                SerialOverride = false,
                 Frequency = 300,
                 Duty = 0
             });
         }
 
         // Initialize CAN modes (0-15)
-        for (int i = 0; i < 16; i++)
+        var canModeNames = new[]
         {
-            CanModes.Add(new CanModeItem { Index = i, Name = $"CAN MODE {i} - Description here too" });
+            "PT_Default1",
+            "Haltech IO12A",
+            "Haltech IO12B",
+            "Haltech IO12A&B",
+            "Haltech IO16A",
+            "Haltech IO16B",
+            "ECU Master CANSWB v3",
+            "Motec E888",
+            "Emtron",
+            "reserved",
+            "reserved",
+            "reserved",
+            "reserved",
+            "reserved",
+            "reserved",
+            "reserved"
+        };
+
+        for (int i = 0; i < canModeNames.Length; i++)
+        {
+            CanModes.Add(new CanModeItem { Index = i, Name = $"{i} - {canModeNames[i]}" });
         }
 
         // Load config if connected - defer to avoid blocking
@@ -134,8 +155,10 @@ public partial class ConfigViewModel : ViewModelBase
                 {
                     bool safeHigh = (config.SafeMask & (1 << i)) != 0;
                     bool activeHigh = (config.ActiveMask & (1 << i)) != 0;
+                    bool serialOverride = (config.SerialOverrideMask & (1 << i)) != 0;
                     OutputConfigs[i].SafeHigh = safeHigh;
                     OutputConfigs[i].ActiveHigh = activeHigh;
+                    OutputConfigs[i].SerialOverride = serialOverride;
                     OutputConfigs[i].Frequency = config.OutFreq[i];
                 }
             });
@@ -203,6 +226,22 @@ public partial class ConfigViewModel : ViewModelBase
         catch (Exception ex)
         {
             MessageBox.Show($"Failed to set active polarity: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    [RelayCommand]
+    private async Task OutputOverrideChanged(OutputConfigItem item)
+    {
+        if (!IsConnected) return;
+
+        try
+        {
+            await _communication.SetSerialOverrideAsync(item.Channel, item.SerialOverride);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to set serial override: {ex.Message}", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -360,6 +399,9 @@ public partial class OutputConfigItem : ObservableObject
 
     [ObservableProperty]
     private bool _activeHigh;
+
+    [ObservableProperty]
+    private bool _serialOverride;
 
     [ObservableProperty]
     private int _frequency;

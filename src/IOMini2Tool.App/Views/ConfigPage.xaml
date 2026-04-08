@@ -66,6 +66,7 @@
                             <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="70"/>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="60"/>
                         </Grid.ColumnDefinitions>
@@ -85,11 +86,12 @@
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Out" FontWeight="SemiBold" Margin="4"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="Safe" FontWeight="SemiBold" Margin="4"/>
                         <TextBlock Grid.Row="0" Grid.Column="2" Text="Active" FontWeight="SemiBold" Margin="4" ToolTip="Active High"/>
-                        <TextBlock Grid.Row="0" Grid.Column="3" Text="Hz" FontWeight="SemiBold" Margin="4"/>
-                        <TextBlock Grid.Row="0" Grid.Column="4" Text="%" FontWeight="SemiBold" Margin="4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" Text="Override" FontWeight="SemiBold" Margin="4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="Hz" FontWeight="SemiBold" Margin="4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="5" Text="%" FontWeight="SemiBold" Margin="4"/>
                         
                         <!-- DPO1-8 Rows -->
-                        <ItemsControl Grid.Row="1" Grid.RowSpan="8" Grid.ColumnSpan="5" ItemsSource="{Binding OutputConfigs}">
+                        <ItemsControl Grid.Row="1" Grid.RowSpan="8" Grid.ColumnSpan="6" ItemsSource="{Binding OutputConfigs}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,2">
@@ -97,6 +99,7 @@
                                             <ColumnDefinition Width="60"/>
                                             <ColumnDefinition Width="60"/>
                                             <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="70"/>
                                             <ColumnDefinition Width="80"/>
                                             <ColumnDefinition Width="60"/>
                                         </Grid.ColumnDefinitions>
@@ -108,10 +111,13 @@
                                         <CheckBox Grid.Column="2" IsChecked="{Binding ActiveHigh}" HorizontalAlignment="Center"
                                                   Command="{Binding DataContext.OutputActiveChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                   CommandParameter="{Binding}"/>
-                                        <TextBox Grid.Column="3" Text="{Binding Frequency, UpdateSourceTrigger=LostFocus}" Margin="2"
+                                        <CheckBox Grid.Column="3" IsChecked="{Binding SerialOverride}" HorizontalAlignment="Center"
+                                                  Command="{Binding DataContext.OutputOverrideChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <TextBox Grid.Column="4" Text="{Binding Frequency, UpdateSourceTrigger=LostFocus}" Margin="2"
                                                  IsEnabled="{Binding DataContext.IsConnected, RelativeSource={RelativeSource AncestorType=Page}}"
                                                  Tag="{Binding}"/>
-                                        <TextBox Grid.Column="4" Text="{Binding Duty, UpdateSourceTrigger=LostFocus}" Margin="2"
+                                        <TextBox Grid.Column="5" Text="{Binding Duty, UpdateSourceTrigger=LostFocus}" Margin="2"
                                                  IsEnabled="{Binding DataContext.IsConnected, RelativeSource={RelativeSource AncestorType=Page}}"
                                                  Tag="{Binding}"/>
                                     </Grid>

@@ -250,6 +250,11 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
+            if (error.StartsWith("JSON parse error", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             ConnectionStatus = $"Error: {error}";
         });
     }

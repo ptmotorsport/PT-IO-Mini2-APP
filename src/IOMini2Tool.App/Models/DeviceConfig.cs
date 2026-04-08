@@ -22,6 +22,8 @@ public sealed class DeviceConfig
     public byte ActiveMask { get; init; }
     
     public byte InputPullupMask { get; init; }
+
+    public byte SerialOverrideMask { get; init; }
     
     public int DiDebounceMs { get; init; }
     

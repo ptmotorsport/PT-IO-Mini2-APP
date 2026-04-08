@@ -234,6 +234,7 @@ public sealed class DeviceCommunicationService : IDisposable
             SafeMask = response["safeMask"]?.GetValue<byte>() ?? 0,
             ActiveMask = response["activeMask"]?.GetValue<byte>() ?? 0,
             InputPullupMask = response["inputPullupMask"]?.GetValue<byte>() ?? 0,
+            SerialOverrideMask = response["serialOverrideMask"]?.GetValue<byte>() ?? 0,
             DiDebounceMs = response["diDebounceMs"]?.GetValue<int>() ?? 0,
             OutFreq = response["outFreq"]?.Deserialize<int[]>(JsonOptions) ?? new int[8]
         };
@@ -427,11 +428,21 @@ public sealed class DeviceCommunicationService : IDisposable
                     
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
+
+                    var trimmedLine = line.Trim();
                     
                     // Debug: Log raw data
                     System.Diagnostics.Debug.WriteLine($"RX: {line}");
+
+                    // Some firmware builds may occasionally output plain text diagnostics.
+                    // Only process JSON objects through the protocol parser.
+                    if (!trimmedLine.StartsWith("{"))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"RX (ignored non-JSON): {trimmedLine}");
+                        continue;
+                    }
                     
-                    var json = JsonNode.Parse(line);
+                    var json = JsonNode.Parse(trimmedLine);
                     if (json != null)
                     {
                         ProcessMessage(json);
