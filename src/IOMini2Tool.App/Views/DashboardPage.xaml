@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:views="clr-namespace:IOMini2Tool.Views"
       mc:Ignorable="d"
       Title="Dashboard">
     
@@ -17,20 +18,31 @@
         </Grid.ColumnDefinitions>
         
         <!-- Top-Left: Analog Input Information -->
-        <GroupBox Grid.Row="0" Grid.Column="0" Header="Analog Input Information" Margin="0,0,8,8">
+        <GroupBox Grid.Row="0" Grid.Column="0" Header="Analog Input Information" Margin="0,0,8,8" views:HelpTopics.Topic="dashboard.analog">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding AnalogInputs}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding}" Margin="4,2" FontFamily="Consolas"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding AnalogInputs}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Margin="4,2" FontFamily="Consolas"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <!-- DTM2 only: DPO1-4 output voltage sense (0-30V), shown as Analog 9-12 -->
+                    <ItemsControl ItemsSource="{Binding OutputVoltageInputs}"
+                                  Visibility="{Binding HasOutputVoltageInputs, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Margin="4,2" FontFamily="Consolas"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
             </ScrollViewer>
         </GroupBox>
         
         <!-- Top-Right: Digital Input Information -->
-        <GroupBox Grid.Row="0" Grid.Column="1" Header="Digital Input Information" Margin="8,0,0,8">
+        <GroupBox Grid.Row="0" Grid.Column="1" Header="Digital Input Information" Margin="8,0,0,8" views:HelpTopics.Topic="dashboard.digitalIn">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding DigitalInputs}">
                     <ItemsControl.ItemTemplate>
@@ -43,7 +55,7 @@
         </GroupBox>
         
         <!-- Bottom-Left: CAN Information -->
-        <GroupBox Grid.Row="1" Grid.Column="0" Header="CAN Information" Margin="0,8,8,0">
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="CAN Information" Margin="0,8,8,0" views:HelpTopics.Topic="dashboard.can">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -88,7 +100,7 @@
         </GroupBox>
         
         <!-- Bottom-Right: Digital Output Information -->
-        <GroupBox Grid.Row="1" Grid.Column="1" Header="Digital Output Information" Margin="8,8,0,0">
+        <GroupBox Grid.Row="1" Grid.Column="1" Header="Digital Output Information" Margin="8,8,0,0" views:HelpTopics.Topic="dashboard.digitalOut">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding DigitalOutputs}">
                     <ItemsControl.ItemTemplate>

@@ -16,6 +16,7 @@
             <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
             <converters:BoolToConnectTextConverter x:Key="BoolToConnectTextConverter"/>
             <converters:StringEqualityConverter x:Key="StringEqualityConverter"/>
+            <converters:BoolToActiveLevelConverter x:Key="BoolToActiveLevelConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

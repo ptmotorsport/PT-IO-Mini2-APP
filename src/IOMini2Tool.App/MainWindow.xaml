@@ -8,7 +8,8 @@
         Height="700"
         Width="1000"
         MinHeight="600"
-        MinWidth="900">
+        MinWidth="900"
+        PreviewKeyDown="Window_PreviewKeyDown">
     
     <Window.Resources>
         <Style TargetType="RadioButton" x:Key="NavButtonStyle" BasedOn="{StaticResource TabButtonStyle}"/>
@@ -77,6 +78,11 @@
                                FontWeight="SemiBold" 
                                FontSize="11"
                                Foreground="{StaticResource SecondaryTextBrush}"/>
+                    <TextBlock Text="{Binding DeviceModel}" 
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     <TextBlock Text="{Binding FirmwareVersion}" 
                                FontSize="10"
                                Foreground="{StaticResource DisabledTextBrush}"

@@ -3,6 +3,8 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:views="clr-namespace:IOMini2Tool.Views"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
       mc:Ignorable="d"
       Title="Config">
     
@@ -13,11 +15,11 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1.3*"/>
         </Grid.ColumnDefinitions>
         
         <!-- Top-Left: Digital Inputs -->
-        <GroupBox Grid.Row="0" Grid.Column="0" Header="Digital Inputs" Margin="0,0,8,8">
+        <GroupBox Grid.Row="0" Grid.Column="0" Header="Digital Inputs" Margin="0,0,8,8" views:HelpTopics.Topic="config.digitalIn">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -28,17 +30,35 @@
                 <TextBlock Grid.Row="0" Text="Input Pull up" FontWeight="SemiBold" Margin="0,0,0,8"/>
                 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding InputPullups}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <CheckBox Content="{Binding Label}" 
-                                          IsChecked="{Binding IsEnabled}" 
-                                          Command="{Binding DataContext.ToggleInputPullupCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                          CommandParameter="{Binding}"
-                                          Margin="4,2"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <StackPanel>
+                        <ItemsControl ItemsSource="{Binding InputPullups}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Label}" 
+                                              IsChecked="{Binding IsEnabled}" 
+                                              Command="{Binding DataContext.ToggleInputPullupCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                              CommandParameter="{Binding}"
+                                              Margin="4,2"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- DTM2 only: AV1-4 external 1k pullup switches -->
+                        <StackPanel Visibility="{Binding HasAnalogPullups, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="Analog Input Pull up (1k)" FontWeight="SemiBold" Margin="0,12,0,4"/>
+                            <ItemsControl ItemsSource="{Binding AnalogPullups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Label}" 
+                                                  IsChecked="{Binding IsEnabled}" 
+                                                  Command="{Binding DataContext.ToggleAnalogPullupCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                  CommandParameter="{Binding}"
+                                                  Margin="4,2"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
                 </ScrollViewer>
                 
                 <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
@@ -51,24 +71,37 @@
         </GroupBox>
         
         <!-- Top-Right: Digital Outputs -->
-        <GroupBox Grid.Row="0" Grid.Column="1" Header="Digital Outputs" Margin="8,0,0,8">
+        <GroupBox Grid.Row="0" Grid.Column="1" Header="Digital Outputs" Margin="8,0,0,8" views:HelpTopics.Topic="config.digitalOut">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 
-                <TextBlock Grid.Row="0" Text="Output Settings" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <TextBlock Grid.Row="0" Text="Output Settings" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock Text="Safe State Active:" FontSize="11" Foreground="Gray"/>
+                    <TextBlock Text="{Binding CanSafeState}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding CanSafeStateColor}" Margin="4,0,0,0"
+                               ToolTip="YES when the device has lost CAN communication (RX timeout) and every non-duty-locked output is being forced to its Safe column value."/>
+                </StackPanel>
+                <TextBlock Grid.Row="2" Text="Lck = locked to the app value shown; CAN cannot change it for that channel/parameter while locked. Locking only happens when you tick a Lck box yourself."
+                           FontSize="11" Foreground="Gray" TextWrapping="Wrap" Margin="0,0,0,8"/>
                 
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="68"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="60"/>
-                            <ColumnDefinition Width="60"/>
-                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="50"/>
                             <ColumnDefinition Width="70"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="60"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -83,43 +116,72 @@
                         </Grid.RowDefinitions>
                         
                         <!-- Headers -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Out" FontWeight="SemiBold" Margin="4"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Safe" FontWeight="SemiBold" Margin="4"/>
-                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Active" FontWeight="SemiBold" Margin="4" ToolTip="Active High"/>
-                        <TextBlock Grid.Row="0" Grid.Column="3" Text="Override" FontWeight="SemiBold" Margin="4"/>
-                        <TextBlock Grid.Row="0" Grid.Column="4" Text="Hz" FontWeight="SemiBold" Margin="4"/>
-                        <TextBlock Grid.Row="0" Grid.Column="5" Text="%" FontWeight="SemiBold" Margin="4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Out" FontWeight="SemiBold" Margin="2,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Safe" FontWeight="SemiBold" Margin="2,4" ToolTip="Safe-state OUTPUT LEVEL: when checked, this output is driven ON while the device is in Safe State (CAN timed out); when unchecked, it is driven OFF. This only takes effect while Safe State is active (see the readout above) and only for channels that are not Duty-locked."/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Active" FontWeight="SemiBold" Margin="2,4" HorizontalAlignment="Center" ToolTip="Output polarity: High or Low. The device only switches low-side; driving High requires an external pull-up resistor to the switched voltage - see F1 help for details."/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" Text="D.Lck" FontWeight="SemiBold" Margin="2,4" ToolTip="Duty Lock: when checked, the % value below is locked to the app - CAN cannot change this channel's duty."/>
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="F.Lck" FontWeight="SemiBold" Margin="2,4" ToolTip="Frequency Lock: when checked, the Hz value below is locked to the app - CAN cannot change this channel's frequency."/>
+                        <TextBlock Grid.Row="0" Grid.Column="5" Text="S.Lck" FontWeight="SemiBold" Margin="2,4" ToolTip="Safe Lock: when checked, the Safe checkbox is locked to the app - CAN cannot change this channel's safe-state level."/>
+                        <TextBlock Grid.Row="0" Grid.Column="6" Text="A.Lck" FontWeight="SemiBold" Margin="2,4" ToolTip="Active Lock: when checked, the Active checkbox is locked to the app - CAN cannot change this channel's polarity."/>
+                        <TextBlock Grid.Row="0" Grid.Column="7" Text="Hz" FontWeight="SemiBold" Margin="2,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="8" Text="%" FontWeight="SemiBold" Margin="2,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="9" Text="State" FontWeight="SemiBold" Margin="2,4" ToolTip="Live output state right now. Hover a row's State cell for the current duty/frequency and what CAN is requesting."/>
                         
                         <!-- DPO1-8 Rows -->
-                        <ItemsControl Grid.Row="1" Grid.RowSpan="8" Grid.ColumnSpan="6" ItemsSource="{Binding OutputConfigs}">
+                        <ItemsControl Grid.Row="1" Grid.RowSpan="8" Grid.ColumnSpan="9" ItemsSource="{Binding OutputConfigs}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,2">
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="42"/>
+                                            <ColumnDefinition Width="40"/>
+                                            <ColumnDefinition Width="68"/>
+                                            <ColumnDefinition Width="40"/>
+                                            <ColumnDefinition Width="40"/>
+                                            <ColumnDefinition Width="40"/>
+                                            <ColumnDefinition Width="40"/>
                                             <ColumnDefinition Width="60"/>
-                                            <ColumnDefinition Width="60"/>
-                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="50"/>
                                             <ColumnDefinition Width="70"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="60"/>
                                         </Grid.ColumnDefinitions>
                                         
                                         <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" Margin="4"/>
                                         <CheckBox Grid.Column="1" IsChecked="{Binding SafeHigh}" HorizontalAlignment="Center"
                                                   Command="{Binding DataContext.OutputSafeChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                   CommandParameter="{Binding}"/>
-                                        <CheckBox Grid.Column="2" IsChecked="{Binding ActiveHigh}" HorizontalAlignment="Center"
-                                                  Command="{Binding DataContext.OutputActiveChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                  CommandParameter="{Binding}"/>
+                                        <ComboBox Grid.Column="2" Width="62" Style="{StaticResource CompactComboBoxStyle}" HorizontalAlignment="Center"
+                                                  SelectedItem="{Binding ActiveHigh, Converter={StaticResource BoolToActiveLevelConverter}}"
+                                                  Tag="{Binding}" SelectionChanged="OutputActiveLevel_SelectionChanged"
+                                                  ToolTip="Output polarity: High drives the pin high when active, Low drives it low (the device only switches low-side; High requires an external pull-up to the switched voltage).">
+                                            <sys:String>High</sys:String>
+                                            <sys:String>Low</sys:String>
+                                        </ComboBox>
                                         <CheckBox Grid.Column="3" IsChecked="{Binding SerialOverride}" HorizontalAlignment="Center"
                                                   Command="{Binding DataContext.OutputOverrideChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                                   CommandParameter="{Binding}"/>
-                                        <TextBox Grid.Column="4" Text="{Binding Frequency, UpdateSourceTrigger=LostFocus}" Margin="2"
+                                        <CheckBox Grid.Column="4" IsChecked="{Binding FreqOverride}" HorizontalAlignment="Center"
+                                                  Command="{Binding DataContext.OutputFreqOverrideChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <CheckBox Grid.Column="5" IsChecked="{Binding SafeOverride}" HorizontalAlignment="Center"
+                                                  Command="{Binding DataContext.OutputSafeOverrideChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <CheckBox Grid.Column="6" IsChecked="{Binding ActiveOverride}" HorizontalAlignment="Center"
+                                                  Command="{Binding DataContext.OutputActiveOverrideChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <TextBox Grid.Column="7" Text="{Binding Frequency, UpdateSourceTrigger=LostFocus}" Margin="2"
                                                  IsEnabled="{Binding DataContext.IsConnected, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                 Tag="{Binding}"/>
-                                        <TextBox Grid.Column="5" Text="{Binding Duty, UpdateSourceTrigger=LostFocus}" Margin="2"
+                                                 Tag="{Binding}" LostFocus="OutputFrequency_LostFocus"/>
+                                        <TextBox Grid.Column="8" Text="{Binding Duty, UpdateSourceTrigger=LostFocus}" Margin="2"
                                                  IsEnabled="{Binding DataContext.IsConnected, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                 Tag="{Binding}"/>
+                                                 Tag="{Binding}" LostFocus="OutputDuty_LostFocus"/>
+                                        <TextBlock Grid.Column="9" Text="{Binding LiveStateText}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold">
+                                            <TextBlock.ToolTip>
+                                                <MultiBinding StringFormat="Duty: {0} | Freq: {1}">
+                                                    <Binding Path="LiveDutyText"/>
+                                                    <Binding Path="LiveFreqText"/>
+                                                </MultiBinding>
+                                            </TextBlock.ToolTip>
+                                        </TextBlock>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -130,7 +192,7 @@
         </GroupBox>
         
         <!-- Bottom-Left: CAN Settings -->
-        <GroupBox Grid.Row="1" Grid.Column="0" Header="CAN Settings" Margin="0,8,8,0">
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="CAN Settings" Margin="0,8,8,0" views:HelpTopics.Topic="config.can">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -207,8 +269,8 @@
         <!-- Bottom-Right: Buttons -->
         <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,8,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical">
             <Button Content="Console" Width="150" Margin="0,0,0,12" IsEnabled="False"/>
-            <Button Content="Help" Width="150" Margin="0,0,0,12" IsEnabled="False"/>
-            <Button Content="Default" Width="150" Command="{Binding ResetDefaultsCommand}"/>
+            <Button Content="Help" Width="150" Margin="0,0,0,12" Click="HelpButton_Click"/>
+            <Button Content="Default" Width="150" Command="{Binding ResetDefaultsCommand}" views:HelpTopics.Topic="config.reset"/>
         </StackPanel>
     </Grid>
 </Page>

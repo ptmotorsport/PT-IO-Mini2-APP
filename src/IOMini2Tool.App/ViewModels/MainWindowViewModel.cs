@@ -19,6 +19,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly DispatcherTimer _refreshTimer;
     private readonly Frame _contentFrame;
     private DashboardViewModel? _currentDashboardViewModel;
+    private ConfigViewModel? _currentConfigViewModel;
 
     [ObservableProperty]
     private ObservableCollection<DeviceInfo> _comPorts = new();
@@ -37,6 +38,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private DeviceInfo? _connectedDevice;
+
+    [ObservableProperty]
+    private string _deviceModel = "";
+
+    /// <summary>Model of the most recently connected device; kept after disconnect so the
+    /// Firmware tab can still remind the user which firmware variant to upload.</summary>
+    [ObservableProperty]
+    private string _lastKnownDeviceModel = "";
 
     [ObservableProperty]
     private string _selectedTab = "Dashboard";
@@ -75,15 +84,30 @@ public partial class MainWindowViewModel : ViewModelBase
     private void RefreshComPorts()
     {
         var ports = _deviceDiscovery.GetComPorts();
-        
-        ComPorts.Clear();
-        foreach (var port in ports)
+        var newIds = ports.Select(p => p.Id).ToHashSet();
+
+        // Update in place instead of Clear()+re-add: clearing the bound ObservableCollection
+        // mid-refresh briefly pushes a null SelectedItem back into SelectedComPort (WPF ComboBox
+        // behavior), which disables the Connect button while the user is picking a port.
+        for (var i = ComPorts.Count - 1; i >= 0; i--)
         {
-            ComPorts.Add(port);
+            if (!newIds.Contains(ComPorts[i].Id))
+            {
+                ComPorts.RemoveAt(i);
+            }
         }
 
-        // Reselect if still available
-        if (SelectedComPort != null && !ports.Any(p => p.Id == SelectedComPort.Id))
+        var existingIds = ComPorts.Select(p => p.Id).ToHashSet();
+        foreach (var port in ports)
+        {
+            if (!existingIds.Contains(port.Id))
+            {
+                ComPorts.Add(port);
+            }
+        }
+
+        // Clear selection only if the selected port actually disappeared
+        if (SelectedComPort != null && !newIds.Contains(SelectedComPort.Id))
         {
             SelectedComPort = null;
         }
@@ -105,6 +129,8 @@ public partial class MainWindowViewModel : ViewModelBase
             
             ConnectedDevice = deviceInfo;
             FirmwareVersion = $"FW: 0x{deviceInfo.FirmwareVersion:X2}";
+            DeviceModel = deviceInfo.DeviceModel;
+            LastKnownDeviceModel = deviceInfo.DeviceModel;
             IsConnected = true;
             ConnectionStatus = $"Connected to {SelectedComPort?.DisplayName ?? "device"}";
 
@@ -159,6 +185,7 @@ public partial class MainWindowViewModel : ViewModelBase
         ConnectionStatus = "Disconnecting...";
         FirmwareVersion = "";
         ConnectedDevice = null;
+        DeviceModel = "";
 
         try
         {
@@ -182,9 +209,12 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         SelectedTab = page;
         
-        // Dispose previous Dashboard ViewModel if exists
+        // Dispose previous Dashboard/Config ViewModels if they exist (both hold a telemetry
+        // subscription that must be unhooked or it leaks across page visits).
         _currentDashboardViewModel?.Dispose();
         _currentDashboardViewModel = null;
+        _currentConfigViewModel?.Dispose();
+        _currentConfigViewModel = null;
         
         switch (page)
         {
@@ -203,7 +233,9 @@ public partial class MainWindowViewModel : ViewModelBase
                 try
                 {
                     var configPage = new Views.ConfigPage();
-                    configPage.DataContext = new ConfigViewModel(_deviceCommunication);
+                    var configViewModel = new ConfigViewModel(_deviceCommunication);
+                    _currentConfigViewModel = configViewModel;
+                    configPage.DataContext = configViewModel;
                     _contentFrame.Navigate(configPage);
                 }
                 catch (Exception ex)
@@ -217,7 +249,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 try
                 {
                     var firmwarePage = new Views.FirmwarePage();
-                    firmwarePage.DataContext = new FirmwareViewModel(_deviceDiscovery, _dfuUtil);
+                    firmwarePage.DataContext = new FirmwareViewModel(_deviceDiscovery, _dfuUtil, LastKnownDeviceModel);
                     _contentFrame.Navigate(firmwarePage);
                 }
                 catch (Exception ex)
@@ -236,6 +268,7 @@ public partial class MainWindowViewModel : ViewModelBase
             IsConnected = false;
             ConnectionStatus = "Connection lost";
             FirmwareVersion = "";
+            DeviceModel = "";
             System.Windows.MessageBox.Show("Connection to device was lost.", "Connection Lost",
                 System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
         });

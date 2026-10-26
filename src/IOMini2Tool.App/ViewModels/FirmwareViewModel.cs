@@ -46,11 +46,19 @@ public partial class FirmwareViewModel : ViewModelBase
     [ObservableProperty]
     private Brush _statusBackground = new SolidColorBrush(Color.FromRgb(34, 197, 94));
 
-    public FirmwareViewModel(DeviceDiscoveryService discovery, DfuUtilService dfuUtil)
+    /// <summary>Reminder shown on the Firmware tab since DFU/bootloader mode looks identical for
+    /// every board variant - the hello message's model info isn't available once in bootloader.</summary>
+    public string DeviceModelReminder { get; }
+
+    public FirmwareViewModel(DeviceDiscoveryService discovery, DfuUtilService dfuUtil, string lastKnownDeviceModel = "")
     {
         _discovery = discovery;
         _dfuUtil = dfuUtil;
-        
+
+        DeviceModelReminder = string.IsNullOrEmpty(lastKnownDeviceModel) || lastKnownDeviceModel == "Unknown"
+            ? "Mini2 and DTM2 firmware are NOT interchangeable. Verify you selected the correct .bin for your board before uploading."
+            : $"Last connected device was detected as {lastKnownDeviceModel}. Mini2 and DTM2 firmware are NOT interchangeable - verify this .bin matches that board.";
+
         // Initialize with empty message
         StatusMessage = string.Empty;
         ShowStatusBanner = false;

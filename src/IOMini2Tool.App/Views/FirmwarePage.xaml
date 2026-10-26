@@ -15,11 +15,26 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Device Model Reminder -->
+        <Border Grid.Row="0"
+                Background="#FEF3C7"
+                BorderBrush="#F59E0B"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="10,8"
+                Margin="0,0,0,15">
+            <TextBlock Text="{Binding DeviceModelReminder}"
+                       Foreground="#92400E"
+                       FontSize="12"
+                       TextWrapping="Wrap"/>
+        </Border>
+
         <!-- Device Selection Section -->
-        <GroupBox Grid.Row="0" Header="Device Selection" Margin="0,0,0,15">
+        <GroupBox Grid.Row="1" Header="Device Selection" Margin="0,0,0,15">
             <Grid Margin="10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -64,7 +79,7 @@
         </GroupBox>
 
         <!-- Upload Actions -->
-        <StackPanel Grid.Row="1" 
+        <StackPanel Grid.Row="2" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Center"
                     Margin="0,0,0,15">
@@ -81,7 +96,7 @@
         </StackPanel>
 
         <!-- Progress Section -->
-        <GroupBox Grid.Row="2" Header="Upload Progress" Margin="0,0,0,15">
+        <GroupBox Grid.Row="3" Header="Upload Progress" Margin="0,0,0,15">
             <StackPanel Margin="10">
                 <ProgressBar Height="24"
                              Value="{Binding ProgressPercent}"
@@ -95,7 +110,7 @@
         </GroupBox>
 
         <!-- Status Banner -->
-        <Border Grid.Row="3" 
+        <Border Grid.Row="4" 
                 Height="32"
                 Background="{Binding StatusBackground}"
                 CornerRadius="4"
@@ -110,7 +125,7 @@
         </Border>
 
         <!-- Console Output -->
-        <GroupBox Grid.Row="4" Header="Console Output">
+        <GroupBox Grid.Row="5" Header="Console Output">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding ConsoleLines}">
                     <ItemsControl.ItemTemplate>

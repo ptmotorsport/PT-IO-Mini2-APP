@@ -18,3 +18,9 @@ Thumbs.db
 
 # Publish output
 **/publish/
+
+# Packaged release artifacts
+/releases/
+
+# External reference repo (firmware source, for local reference only - never commit)
+/reference/

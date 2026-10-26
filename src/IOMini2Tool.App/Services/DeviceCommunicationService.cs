@@ -32,6 +32,13 @@ public sealed class DeviceCommunicationService : IDisposable
     public bool IsConnected => _serialPort?.IsOpen ?? false;
 
     /// <summary>
+    /// Hello info from the currently connected device (channel counts, firmware version, etc.),
+    /// or null when disconnected. Lets other ViewModels size their UI to the actual device variant
+    /// (e.g. PT-IO-DTM2 has 4 digital in/out instead of Mini2's 8) without re-fetching hello.
+    /// </summary>
+    public DeviceInfo? ConnectedDeviceInfo { get; private set; }
+
+    /// <summary>
     /// Opens connection to device and retrieves hello message
     /// </summary>
     public async Task<DeviceInfo> OpenConnectionAsync(string portName, CancellationToken cancellationToken = default)
@@ -67,6 +74,7 @@ public sealed class DeviceCommunicationService : IDisposable
             
             // Request hello message with longer timeout
             var hello = await GetHelloAsync(cancellationToken);
+            ConnectedDeviceInfo = hello;
             
             return hello;
         }
@@ -84,6 +92,7 @@ public sealed class DeviceCommunicationService : IDisposable
     {
         _isClosing = true;
         _isSubscribed = false;
+        ConnectedDeviceInfo = null;
 
         try
         {
@@ -152,7 +161,9 @@ public sealed class DeviceCommunicationService : IDisposable
                 Capabilities = capabilities ?? Array.Empty<string>(),
                 AnalogChannels = response["analogChannels"]?.GetValue<int>() ?? 0,
                 DigitalIn = response["digitalIn"]?.GetValue<int>() ?? 0,
-                DigitalOut = response["digitalOut"]?.GetValue<int>() ?? 0
+                DigitalOut = response["digitalOut"]?.GetValue<int>() ?? 0,
+                OutputVoltageChannels = response["outputVoltageChannels"]?.GetValue<int>() ?? 0,
+                Board = response["board"]?.GetValue<string>()
             };
         }
         catch (Exception ex)
@@ -234,7 +245,11 @@ public sealed class DeviceCommunicationService : IDisposable
             SafeMask = response["safeMask"]?.GetValue<byte>() ?? 0,
             ActiveMask = response["activeMask"]?.GetValue<byte>() ?? 0,
             InputPullupMask = response["inputPullupMask"]?.GetValue<byte>() ?? 0,
-            SerialOverrideMask = response["serialOverrideMask"]?.GetValue<byte>() ?? 0,
+            AnalogPullupMask = response["analogPullupMask"]?.GetValue<byte>() ?? 0,
+            DutyOverrideMask = response["dutyOverrideMask"]?.GetValue<byte>() ?? 0,
+            FreqOverrideMask = response["freqOverrideMask"]?.GetValue<byte>() ?? 0,
+            SafeOverrideMask = response["safeOverrideMask"]?.GetValue<byte>() ?? 0,
+            ActiveOverrideMask = response["activeOverrideMask"]?.GetValue<byte>() ?? 0,
             DiDebounceMs = response["diDebounceMs"]?.GetValue<int>() ?? 0,
             OutFreq = response["outFreq"]?.Deserialize<int[]>(JsonOptions) ?? new int[8]
         };
@@ -322,6 +337,21 @@ public sealed class DeviceCommunicationService : IDisposable
     }
 
     /// <summary>
+    /// Set analog input (AV1-4) external 1k pullup enable for channel (DTM2 only)
+    /// </summary>
+    public async Task SetAnalogPullupAsync(int channel, bool enabled, CancellationToken cancellationToken = default)
+    {
+        if (channel < 1 || channel > 4)
+            throw new ArgumentException("Channel must be 1-4", nameof(channel));
+        
+        var cmd = $"{{\"cmd\":\"setAnalogPullup\",\"ch\":{channel},\"enabled\":{(enabled ? "true" : "false")}}}";
+        var response = await SendCommandAsync(cmd, 2000, cancellationToken);
+        
+        if (response?["status"]?.GetValue<string>() != "ok")
+            throw new InvalidOperationException($"Failed to set analog pullup: {response?["msg"]?.GetValue<string>()}");
+    }
+
+    /// <summary>
     /// Set debounce time for all digital inputs
     /// </summary>
     public async Task SetDebounceAsync(int ms, CancellationToken cancellationToken = default)
@@ -370,18 +400,20 @@ public sealed class DeviceCommunicationService : IDisposable
     }
 
     /// <summary>
-    /// Set serial override for channel
+    /// Set per-parameter app-vs-CAN override for a channel. While overridden, CAN cannot
+    /// change that channel's parameter - the app's value (and app-driven commands) win.
     /// </summary>
-    public async Task SetSerialOverrideAsync(int channel, bool enabled, CancellationToken cancellationToken = default)
+    /// <param name="param">"duty", "freq", "safe", or "active"</param>
+    public async Task SetOverrideAsync(string param, int channel, bool enabled, CancellationToken cancellationToken = default)
     {
         if (channel < 1 || channel > 8)
             throw new ArgumentException("Channel must be 1-8", nameof(channel));
         
-        var cmd = $"{{\"cmd\":\"setSerialOverride\",\"ch\":{channel},\"enabled\":{(enabled ? "true" : "false")}}}";
+        var cmd = $"{{\"cmd\":\"setOverride\",\"param\":\"{param}\",\"ch\":{channel},\"enabled\":{(enabled ? "true" : "false")}}}";
         var response = await SendCommandAsync(cmd, 2000, cancellationToken);
         
         if (response?["status"]?.GetValue<string>() != "ok")
-            throw new InvalidOperationException($"Failed to set serial override: {response?["msg"]?.GetValue<string>()}");
+            throw new InvalidOperationException($"Failed to set {param} override: {response?["msg"]?.GetValue<string>()}");
     }
 
     private async Task<JsonNode?> SendCommandAsync(string command, int timeoutMs, CancellationToken cancellationToken)
@@ -515,9 +547,12 @@ public sealed class DeviceCommunicationService : IDisposable
     {
         var analog = json["analog"]?.Deserialize<int[]>(JsonOptions) ?? new int[8];
         
+        // Size arrays to the channel count the device actually reported (digitalIn/digitalOut differ
+        // between Mini2 (8/8) and DTM2 (4/4)) instead of a hardcoded 8 - a fixed-size array left the
+        // unfilled tail elements null, which crashed consumers that assumed every slot was populated.
         var digitalArray = json["digital"]?.AsArray();
-        var digital = new DigitalInputState[8];
-        for (int i = 0; i < 8 && i < (digitalArray?.Count ?? 0); i++)
+        var digital = new DigitalInputState[digitalArray?.Count ?? 0];
+        for (int i = 0; i < digital.Length; i++)
         {
             var item = digitalArray![i];
             digital[i] = new DigitalInputState
@@ -529,8 +564,8 @@ public sealed class DeviceCommunicationService : IDisposable
         }
         
         var outputsArray = json["outputs"]?.AsArray();
-        var outputs = new OutputState[8];
-        for (int i = 0; i < 8 && i < (outputsArray?.Count ?? 0); i++)
+        var outputs = new OutputState[outputsArray?.Count ?? 0];
+        for (int i = 0; i < outputs.Length; i++)
         {
             var item = outputsArray![i];
             outputs[i] = new OutputState
@@ -538,7 +573,11 @@ public sealed class DeviceCommunicationService : IDisposable
                 Duty = GetStringOrNull(item?["duty"]) ?? "0.0",
                 Freq = item?["freq"]?.GetValue<int>() ?? 0,
                 Safe = item?["safe"]?.GetValue<bool>() ?? false,
-                ActiveHigh = item?["activeHigh"]?.GetValue<bool>() ?? true
+                ActiveHigh = item?["activeHigh"]?.GetValue<bool>() ?? true,
+                CanDuty = GetStringOrNull(item?["canDuty"]) ?? "0.0",
+                CanFreq = item?["canFreq"]?.GetValue<int>() ?? 0,
+                CanSafe = item?["canSafe"]?.GetValue<bool>() ?? false,
+                CanActiveHigh = item?["canActiveHigh"]?.GetValue<bool>() ?? true
             };
         }
         
@@ -552,7 +591,11 @@ public sealed class DeviceCommunicationService : IDisposable
             TxFail = canNode?["txFail"]?.GetValue<int>() ?? 0,
             Mode = canNode?["mode"]?.GetValue<int>() ?? 0,
             LastRxMs = canNode?["lastRxMs"]?.GetValue<long>() ?? 0,
-            RxTimeout = canNode?["rxTimeout"]?.GetValue<int>() ?? 0
+            RxTimeout = canNode?["rxTimeout"]?.GetValue<int>() ?? 0,
+            DutyOverrideMask = canNode?["dutyOverrideMask"]?.GetValue<byte>() ?? 0,
+            FreqOverrideMask = canNode?["freqOverrideMask"]?.GetValue<byte>() ?? 0,
+            SafeOverrideMask = canNode?["safeOverrideMask"]?.GetValue<byte>() ?? 0,
+            ActiveOverrideMask = canNode?["activeOverrideMask"]?.GetValue<byte>() ?? 0
         };
         
         return new DeviceData
@@ -561,6 +604,8 @@ public sealed class DeviceCommunicationService : IDisposable
             Analog = analog,
             Digital = digital,
             Outputs = outputs,
+            OutputVoltage = json["outputVoltage"]?.Deserialize<int[]>(JsonOptions) ?? Array.Empty<int>(),
+            OutputVoltageReady = json["outputVoltageReady"]?.GetValue<bool>() ?? false,
             Can = can
         };
     }

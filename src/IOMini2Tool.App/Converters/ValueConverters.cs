@@ -68,3 +68,20 @@ public class StringEqualityConverter : IValueConverter
         return value is bool b && b ? parameter : Binding.DoNothing;
     }
 }
+
+/// <summary>
+/// Maps the output polarity bool (true = active-high) to the "High"/"Low" text shown in the
+/// Active combo box, and back.
+/// </summary>
+public class BoolToActiveLevelConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return value is bool b && b ? "High" : "Low";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return value is string s && s == "High";
+    }
+}

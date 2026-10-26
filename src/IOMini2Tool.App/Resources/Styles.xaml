@@ -94,6 +94,56 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <!-- Compact ComboBox Style: self-drawn template for small fixed-width dropdowns (e.g. table cells),
+         where the default OS combo box chrome can fail to render text/arrow at narrow widths. -->
+    <Style x:Key="CompactComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="Padding" Value="4,2"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton Focusable="False" ClickMode="Press"
+                                      Background="{TemplateBinding Background}"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      BorderThickness="{TemplateBinding BorderThickness}"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="2"/>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <Grid Margin="{TemplateBinding Padding}" IsHitTestVisible="False">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                            </Grid.ColumnDefinitions>
+                            <ContentPresenter Grid.Column="0" Content="{TemplateBinding SelectionBoxItem}"
+                                              VerticalAlignment="Center"/>
+                            <Path Grid.Column="1" Data="M0,0 L6,0 L3,5 Z" Fill="{StaticResource SecondaryTextBrush}"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
+                               AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                            <Border Background="{StaticResource ControlBackgroundBrush}"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ItemsPresenter/>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     
     <!-- GroupBox Style -->
     <Style TargetType="GroupBox">
