@@ -25,7 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="tools\dfu-util\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="tools\dfu-util\**\*"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest"
+          ExcludeFromSingleFile="true" />
     <None Include="legal\**\*" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\docs\customer-troubleshooting.md" CopyToOutputDirectory="PreserveNewest" Link="docs\customer-troubleshooting.md" />
   </ItemGroup>
