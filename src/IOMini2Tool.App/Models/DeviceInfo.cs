@@ -9,6 +9,26 @@ public sealed class DeviceInfo
     public string? VidPid { get; init; }
 
     public string? UsbSerial { get; init; }
+
+    public string? UsbPath { get; init; }
+
+    public string DriverService { get; init; } = string.Empty;
+
+    public string DriverProvider { get; init; } = string.Empty;
+
+    public string DriverSigner { get; init; } = string.Empty;
+
+    public string DriverVersion { get; init; } = string.Empty;
+
+    public string DriverInfName { get; init; } = string.Empty;
+
+    public bool? DriverIsSigned { get; init; }
+
+    public string PnpStatus { get; init; } = string.Empty;
+
+    public int? ConfigManagerErrorCode { get; init; }
+
+    public IReadOnlyList<string> HardwareIds { get; init; } = Array.Empty<string>();
     
     // Protocol-related fields from hello message
     public int ProtocolVersion { get; init; }

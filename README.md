@@ -12,6 +12,9 @@ Portable Windows WPF app for managing PT-IO-Mini2 Configurations and flashing RA
 - Change CAN speeds
 - Shows available COM ports
 - Shows DFU-like USB devices
+- Runs a DFU preflight against `dfu-util -l` and the current Windows WinUSB binding before uploads
+- Provides user-initiated, signature-checked Arduino Renesas driver repair only for supported hardware IDs
+- Exports detailed DFU and driver diagnostics for support
 - Auto-refreshes device lists
 - Lets users select `.bin` or `.elf` firmware file
 - Runs upload with live status console and progress parsing
