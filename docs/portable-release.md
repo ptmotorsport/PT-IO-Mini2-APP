@@ -17,6 +17,7 @@ Expected root layout in `publish\`:
 - App executable and required runtime files
 - `tools\dfu-util\dfu-util.exe`
 - Any required `libusb` DLL files used by your dfu-util build
+- `tools\drivers\renesas.inf` and its matching `renesas.cat` catalog (plus the included architecture/pre-Windows 10 driver files)
 - `customer-troubleshooting.md`
 - `legal\THIRD-PARTY-NOTICES.txt`
 - `legal\SOURCE-OFFER.txt`
